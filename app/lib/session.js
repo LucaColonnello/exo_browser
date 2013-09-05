@@ -86,6 +86,14 @@ var session = function(spec, my) {
       my.exo_browser.show_page(my.loading_frame);
     });
 
+    my.test_frame = api.exo_frame({
+      name: my.name + '_test',
+      url: my.base_url + '/test.html'
+    });
+    my.exo_browser.set_control(api.HOVER_TOP_CONTROL, my.test_frame, function() {
+      my.exo_browser.set_control_dimension(api.HOVER_TOP_CONTROL, 100);
+    });
+
     my.stack = require('./stack.js').stack({
       session: that
     });

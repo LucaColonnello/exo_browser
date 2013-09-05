@@ -368,6 +368,10 @@ exports.TOP_CONTROL = 1;
 exports.BOTTOM_CONTROL = 2;
 exports.LEFT_CONTROL = 3;
 exports.RIGHT_CONTROL = 4;
+exports.HOVER_TOP_CONTROL = 5;
+exports.HOVER_BOTTOM_CONTROL = 6;
+exports.HOVER_LEFT_CONTROL = 7;
+exports.HOVER_RIGHT_CONTROL = 8;
 
 exports.browser_count = 0;
 
@@ -407,12 +411,20 @@ var exo_browser = function(spec, my) {
   my.controls[exports.BOTTOM_CONTROL] = null;
   my.controls[exports.LEFT_CONTROL] = null;
   my.controls[exports.RIGHT_CONTROL] = null;
+  my.controls[exports.HOVER_TOP_CONTROL] = null;
+  my.controls[exports.HOVER_BOTTOM_CONTROL] = null;
+  my.controls[exports.HOVER_LEFT_CONTROL] = null;
+  my.controls[exports.HOVER_RIGHT_CONTROL] = null;
 
   my.control_dimensions = {};
   my.control_dimensions[exports.TOP_CONTROL] = 0;
   my.control_dimensions[exports.BOTTOM_CONTROL] = 0;
   my.control_dimensions[exports.LEFT_CONTROL] = 0;
   my.control_dimensions[exports.RIGHT_CONTROL] = 0;
+  my.control_dimensions[exports.HOVER_TOP_CONTROL] = 0;
+  my.control_dimensions[exports.HOVER_BOTTOM_CONTROL] = 0;
+  my.control_dimensions[exports.HOVER_LEFT_CONTROL] = 0;
+  my.control_dimensions[exports.HOVER_RIGHT_CONTROL] = 0;
 
 
   //
@@ -730,6 +742,10 @@ var exo_browser = function(spec, my) {
         my.controls[exports.BOTTOM_CONTROL] = null;
         my.controls[exports.LEFT_CONTROL] = null;
         my.controls[exports.RIGHT_CONTROL] = null;
+        my.controls[exports.HOVER_TOP_CONTROL] = null;
+        my.controls[exports.HOVER_BOTTOM_CONTROL] = null;
+        my.controls[exports.HOVER_LEFT_CONTROL] = null;
+        my.controls[exports.HOVER_RIGHT_CONTROL] = null;
         my.frames = {};
         my.pages = {};
 

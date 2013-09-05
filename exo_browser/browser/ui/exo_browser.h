@@ -416,10 +416,10 @@ private:
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
 #elif defined(TOOLKIT_GTK)
-  CHROMEG_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed, 
-                     GtkWidget*);
-  CHROMEG_CALLBACK_0(ExoBrowser, gboolean, OnWindowCheckResize, 
-                     GtkWidget*);
+  CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed);
+  CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowCheckResize);
+  CHROMEGTK_CALLBACK_1(ExoBrowser, gboolean, OnFixedSizeRequest, 
+                       GtkRequisition*);
 #endif
 
 
