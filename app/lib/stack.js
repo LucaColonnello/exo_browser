@@ -83,7 +83,7 @@ var stack = function(spec, my) {
   var that = require('./control.js').control({
     session: spec.session,
     type: 'stack',
-    control_type: api.LEFT_CONTROL
+    control_type: api.HOVER_LEFT_CONTROL
   }, my);
 
   /****************************************************************************/
