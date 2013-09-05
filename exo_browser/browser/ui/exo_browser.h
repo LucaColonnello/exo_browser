@@ -147,6 +147,10 @@ public:
     BOTTOM_CONTROL,
     LEFT_CONTROL,
     RIGHT_CONTROL,
+    HOVER_TOP_CONTROL,
+    HOVER_BOTTOM_CONTROL,
+    HOVER_LEFT_CONTROL,
+    HOVER_RIGHT_CONTROL,
     CONTROL_TYPE_COUNT
   };
 
@@ -412,11 +416,10 @@ private:
   static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
 #elif defined(TOOLKIT_GTK)
-  CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed);
-  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnCloseWindowKeyPressed, 
-                     GtkAccelGroup*, GObject*, guint, GdkModifierType);
-  CHROMEG_CALLBACK_3(ExoBrowser, gboolean, OnNewWindowKeyPressed, 
-                     GtkAccelGroup*, GObject*, guint, GdkModifierType);
+  CHROMEG_CALLBACK_0(ExoBrowser, gboolean, OnWindowDestroyed, 
+                     GtkWidget*);
+  CHROMEG_CALLBACK_0(ExoBrowser, gboolean, OnWindowCheckResize, 
+                     GtkWidget*);
 #endif
 
 
@@ -428,6 +431,7 @@ private:
   gfx::NativeWindow                             window_;
 
   std::map<CONTROL_TYPE, ExoFrame*>             controls_;
+  std::map<CONTROL_TYPE, int>                   dimensions_;
   std::map<std::string, ExoFrame*>              pages_;
 
   ExoBrowserWrap*                               wrapper_;
@@ -438,6 +442,7 @@ private:
   WNDPROC                                       default_edit_wnd_proc_;
   static HINSTANCE                              instance_handle_;
 #elif defined(TOOLKIT_GTK)
+  GtkWidget*                                    fixed_;
   GtkWidget*                                    hbox_;
   GtkWidget*                                    vbox_;
 
@@ -445,8 +450,14 @@ private:
   GtkWidget*                                    control_right_box_;
   GtkWidget*                                    control_top_box_;
   GtkWidget*                                    control_bottom_box_;
+  GtkWidget*                                    control_hover_left_box_;
+  GtkWidget*                                    control_hover_right_box_;
+  GtkWidget*                                    control_hover_top_box_;
+  GtkWidget*                                    control_hover_bottom_box_;
 
   GtkWidget*                                    pages_box_;
+  int                                           w_width_;
+  int                                           w_height_;
 #elif defined(OS_MACOSX)
   NSView*                                       control_left_box_;
   NSLayoutConstraint*                           control_left_constraint_;

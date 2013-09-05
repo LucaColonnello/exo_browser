@@ -122,6 +122,7 @@ ExoBrowser::SetControl(
     UnsetControl(type);
   }
   controls_[type] = frame;
+  dimensions_[type] = 0;
   frame->SetType(ExoFrame::CONTROL_FRAME);
   frame->SetParent(this);
   PlatformSetControl(type, frame);
@@ -131,12 +132,13 @@ void
 ExoBrowser::UnsetControl(
     CONTROL_TYPE type)
 {
-  std::map<CONTROL_TYPE, ExoFrame*>::iterator it = controls_.find(type);
-  if(it != controls_.end()) {
-    PlatformUnsetControl(it->first, it->second);
-    (it->second)->SetType(ExoFrame::NOTYPE_FRAME);
-    (it->second)->SetParent(NULL);
-    controls_.erase(it);
+  std::map<CONTROL_TYPE, ExoFrame*>::iterator cit = controls_.find(type);
+  if(cit != controls_.end()) {
+    PlatformUnsetControl(cit->first, cit->second);
+    (cit->second)->SetType(ExoFrame::NOTYPE_FRAME);
+    (cit->second)->SetParent(NULL);
+    controls_.erase(cit);
+    dimensions_[type] = 0;
   }
   /* Otherwise, nothing to do */
 }
@@ -146,6 +148,7 @@ ExoBrowser::SetControlDimension(
     CONTROL_TYPE type,
     int size)
 {
+  dimensions_[type] = size;
   PlatformSetControlDimension(type, size);
 }
 
