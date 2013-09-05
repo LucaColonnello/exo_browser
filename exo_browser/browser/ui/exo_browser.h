@@ -93,6 +93,10 @@ class ExoFrame;
 // (width for LEFT, RIGHT; height for TOP, BOTTOM) that can be programatically
 // set and updated.
 //
+// Additionally there are four more 'hover' controls which can be drawn over 
+// the pages stack (HOVER_LEFT, HOVER_RIGHT, HOVER_BOTTOM, and HOVER_TOP). Their
+// dimension are similar to the normal controls.
+//
 // The ExoBrowser initialization always come from Javascript and. So it is aware 
 // of its associated JS wrapper (used to dispatch callbacks).
 //
@@ -420,6 +424,7 @@ private:
   CHROMEGTK_CALLBACK_0(ExoBrowser, gboolean, OnWindowCheckResize);
   CHROMEGTK_CALLBACK_1(ExoBrowser, gboolean, OnFixedSizeRequest, 
                        GtkRequisition*);
+  void LayoutFixed();
 #endif
 
 

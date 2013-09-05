@@ -56,15 +56,7 @@ ExoBrowser::PlatformCreateWindow(
   pages_box_ = gtk_event_box_new();
   visible_page_ = NULL;
 
-  gtk_box_pack_start(GTK_BOX(hbox_), control_left_box_, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(hbox_), vbox_, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(hbox_), control_right_box_, FALSE, FALSE, 0);
-
-  gtk_box_pack_start(GTK_BOX(vbox_), control_top_box_, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox_), pages_box_, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox_), control_bottom_box_, FALSE, FALSE, 0);
-
-  gtk_fixed_put(GTK_FIXED(fixed_), hbox_, 0, 0);
+  gtk_fixed_put(GTK_FIXED(fixed_), pages_box_, 0, 0);
 
   /* They will get repositioned/resized at the next window resize */
   gtk_fixed_put(GTK_FIXED(fixed_), control_hover_left_box_, 0, 0);
@@ -73,6 +65,14 @@ ExoBrowser::PlatformCreateWindow(
   gtk_fixed_put(GTK_FIXED(fixed_), control_hover_bottom_box_, 0, 0);
 
 
+  gtk_box_pack_start(GTK_BOX(hbox_), control_left_box_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox_), vbox_, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox_), control_right_box_, FALSE, FALSE, 0);
+
+  gtk_box_pack_start(GTK_BOX(vbox_), control_top_box_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox_), fixed_, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox_), control_bottom_box_, FALSE, FALSE, 0);
+
   g_signal_connect(G_OBJECT(window_), "destroy",
                    G_CALLBACK(OnWindowDestroyedThunk), this);
   g_signal_connect(G_OBJECT(window_), "check-resize",
@@ -80,7 +80,7 @@ ExoBrowser::PlatformCreateWindow(
   g_signal_connect(G_OBJECT(fixed_), "size-request",
                    G_CALLBACK(OnFixedSizeRequestThunk), this);
 
-  gtk_container_add(GTK_CONTAINER(window_), fixed_);
+  gtk_container_add(GTK_CONTAINER(window_), hbox_);
 
   gtk_window_resize(window_, width, height);
 
@@ -143,9 +143,11 @@ ExoBrowser::PlatformSetControl(
     CONTROL_TYPE type, 
     ExoFrame *frame)
 {
-  int w, h;
-  gtk_window_get_size(window_, &w, &h);
   WebContentsView* content_view = frame->web_contents_->GetView();
+  int stack_w = w_width_ - 
+    (dimensions_[LEFT_CONTROL] + dimensions_[RIGHT_CONTROL]);
+  int stack_h = w_height_ - 
+    (dimensions_[TOP_CONTROL] + dimensions_[BOTTOM_CONTROL]);
 
   switch(type) {
     case LEFT_CONTROL: 
@@ -171,22 +173,22 @@ ExoBrowser::PlatformSetControl(
     case HOVER_LEFT_CONTROL:
       gtk_container_add(GTK_CONTAINER(control_hover_left_box_),
                         content_view->GetNativeView());
-      gtk_widget_set_size_request(control_hover_left_box_, 0, w_height_);
+      gtk_widget_set_size_request(control_hover_left_box_, 0, stack_h);
       break;
     case HOVER_RIGHT_CONTROL:
       gtk_container_add(GTK_CONTAINER(control_hover_right_box_),
                         content_view->GetNativeView());
-      gtk_widget_set_size_request(control_hover_right_box_, 0, w_height_);
+      gtk_widget_set_size_request(control_hover_right_box_, 0, stack_h);
       break;
     case HOVER_TOP_CONTROL:
       gtk_container_add(GTK_CONTAINER(control_hover_top_box_),
                         content_view->GetNativeView());
-      gtk_widget_set_size_request(control_hover_top_box_, w_width_, 0);
+      gtk_widget_set_size_request(control_hover_top_box_, stack_w, 0);
       break;
     case HOVER_BOTTOM_CONTROL:
       gtk_container_add(GTK_CONTAINER(control_hover_bottom_box_),
                         content_view->GetNativeView());
-      gtk_widget_set_size_request(control_hover_bottom_box_, w_width_, 0);
+      gtk_widget_set_size_request(control_hover_bottom_box_, stack_w, 0);
       break;
     default:
       /* Nothing to do */
@@ -200,8 +202,10 @@ ExoBrowser::PlatformSetControlDimension(
     CONTROL_TYPE type, 
     int size)
 {
-  int w, h;
-  gtk_window_get_size(window_, &w, &h);
+  int stack_w = w_width_ - 
+    (dimensions_[LEFT_CONTROL] + dimensions_[RIGHT_CONTROL]);
+  int stack_h = w_height_ - 
+    (dimensions_[TOP_CONTROL] + dimensions_[BOTTOM_CONTROL]);
 
   switch(type) {
     case LEFT_CONTROL: 
@@ -217,21 +221,24 @@ ExoBrowser::PlatformSetControlDimension(
       gtk_widget_set_size_request(control_bottom_box_, 0, size);
       break;
     case HOVER_LEFT_CONTROL: 
-      gtk_widget_set_size_request(control_hover_left_box_, size, w_height_);
+      gtk_widget_set_size_request(control_hover_left_box_, size, stack_w);
       break;
     case HOVER_RIGHT_CONTROL: 
-      gtk_widget_set_size_request(control_hover_right_box_, size, w_height_);
+      gtk_widget_set_size_request(control_hover_right_box_, size, stack_w);
       break;
     case HOVER_TOP_CONTROL: 
-      gtk_widget_set_size_request(control_hover_top_box_, w_width_, size);
+      gtk_widget_set_size_request(control_hover_top_box_, stack_h, size);
       break;
     case HOVER_BOTTOM_CONTROL: 
-      gtk_widget_set_size_request(control_hover_bottom_box_, w_width_, size);
+      gtk_widget_set_size_request(control_hover_bottom_box_, stack_h, size);
       break;
     default:
       /* Nothing to do */
       ;
   }
+
+  /* We relayout the fixed_ Widget. */
+  this->LayoutFixed();
 }
 
 
@@ -241,6 +248,10 @@ ExoBrowser::PlatformUnsetControl(
     ExoFrame *frame)
 {
   WebContentsView* content_view = frame->web_contents_->GetView();
+  int stack_w = w_width_ - 
+    (dimensions_[LEFT_CONTROL] + dimensions_[RIGHT_CONTROL]);
+  int stack_h = w_height_ - 
+    (dimensions_[TOP_CONTROL] + dimensions_[BOTTOM_CONTROL]);
 
   switch(type) {
     case LEFT_CONTROL: 
@@ -266,27 +277,30 @@ ExoBrowser::PlatformUnsetControl(
     case HOVER_LEFT_CONTROL: 
       gtk_container_remove(GTK_CONTAINER(control_hover_left_box_),
                            content_view->GetNativeView());
-      gtk_widget_set_size_request(control_hover_left_box_, 0, w_height_);
+      gtk_widget_set_size_request(control_hover_left_box_, 0, stack_h);
       break;
     case HOVER_RIGHT_CONTROL: 
       gtk_container_remove(GTK_CONTAINER(control_hover_right_box_),
                            content_view->GetNativeView());
-      gtk_widget_set_size_request(control_hover_right_box_, 0, w_height_);
+      gtk_widget_set_size_request(control_hover_right_box_, 0, stack_h);
       break;
     case HOVER_TOP_CONTROL: 
       gtk_container_remove(GTK_CONTAINER(control_hover_top_box_),
                            content_view->GetNativeView());
-      gtk_widget_set_size_request(control_hover_top_box_, w_width_, 0);
+      gtk_widget_set_size_request(control_hover_top_box_, stack_w, 0);
       break;
     case HOVER_BOTTOM_CONTROL: 
       gtk_container_remove(GTK_CONTAINER(control_hover_bottom_box_),
                            content_view->GetNativeView());
-      gtk_widget_set_size_request(control_hover_bottom_box_, w_width_, 0);
+      gtk_widget_set_size_request(control_hover_bottom_box_, stack_w, 0);
       break;
     default:
       /* Nothing to do */
       ;
   }
+
+  /* We relayout the fixed_ Widget. */
+  this->LayoutFixed();
 }
 
 
@@ -332,6 +346,37 @@ ExoBrowser::OnFixedSizeRequest(
   return FALSE;  // Don't stop this message.
 }
 
+void
+ExoBrowser::LayoutFixed()
+{
+  int stack_w = w_width_ - 
+    (dimensions_[LEFT_CONTROL] + dimensions_[RIGHT_CONTROL]);
+  int stack_h = w_height_ - 
+    (dimensions_[TOP_CONTROL] + dimensions_[BOTTOM_CONTROL]);
+
+  gtk_widget_set_size_request(pages_box_, stack_w, stack_h);
+  
+  gtk_fixed_move(GTK_FIXED(fixed_), control_hover_left_box_, 
+                  0, 0);
+  gtk_widget_set_size_request(control_hover_left_box_, 
+                              dimensions_[HOVER_LEFT_CONTROL], stack_h);
+
+  gtk_fixed_move(GTK_FIXED(fixed_), control_hover_right_box_, 
+                  stack_w - dimensions_[HOVER_RIGHT_CONTROL], 0);
+  gtk_widget_set_size_request(control_hover_right_box_, 
+                              dimensions_[HOVER_RIGHT_CONTROL], stack_h);
+
+  gtk_fixed_move(GTK_FIXED(fixed_), control_hover_top_box_, 
+                  0, 0);
+  gtk_widget_set_size_request(control_hover_top_box_, 
+                              stack_w, dimensions_[HOVER_TOP_CONTROL]);
+
+  gtk_fixed_move(GTK_FIXED(fixed_), control_hover_bottom_box_, 
+                  0, stack_h - dimensions_[HOVER_BOTTOM_CONTROL]);
+  gtk_widget_set_size_request(control_hover_bottom_box_, 
+                              stack_w, dimensions_[HOVER_BOTTOM_CONTROL]);
+}
+
 gboolean 
 ExoBrowser::OnWindowCheckResize(
     GtkWidget* window) 
@@ -343,27 +388,8 @@ ExoBrowser::OnWindowCheckResize(
     w_width_ = w;
     w_height_ = h;
 
-    gtk_widget_set_size_request(hbox_, w, h);
-  
-    gtk_fixed_move(GTK_FIXED(fixed_), control_hover_left_box_, 
-                   0, 0);
-    gtk_widget_set_size_request(control_hover_left_box_, 
-                                dimensions_[HOVER_LEFT_CONTROL], h);
-
-    gtk_fixed_move(GTK_FIXED(fixed_), control_hover_right_box_, 
-                   w - dimensions_[HOVER_RIGHT_CONTROL], 0);
-    gtk_widget_set_size_request(control_hover_right_box_, 
-                                dimensions_[HOVER_RIGHT_CONTROL], h);
-
-    gtk_fixed_move(GTK_FIXED(fixed_), control_hover_top_box_, 
-                   0, 0);
-    gtk_widget_set_size_request(control_hover_top_box_, 
-                                w, dimensions_[HOVER_TOP_CONTROL]);
-
-    gtk_fixed_move(GTK_FIXED(fixed_), control_hover_bottom_box_, 
-                   0, h - dimensions_[HOVER_BOTTOM_CONTROL]);
-    gtk_widget_set_size_request(control_hover_bottom_box_, 
-                                w, dimensions_[HOVER_BOTTOM_CONTROL]);
+    /* We relayout the fixed_ Widget. */
+    this->LayoutFixed();
   }
   
   return FALSE;  // Don't stop this message.
