@@ -35,10 +35,12 @@ void
 ExoBrowser::PlatformCreateWindow(
     int width,
     int height,
+    bool decorated,
     const std::string& icon_path)
 {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_title(window_, "ExoBrowser");
+  gtk_window_set_decorated(window_, decorated);
 
   hbox_ = gtk_hbox_new(FALSE, 0);
   vbox_ = gtk_vbox_new(FALSE, 0);

@@ -76,10 +76,12 @@ ExoBrowser*
 ExoBrowser::CreateNew(
     ExoBrowserWrap* wrapper,
     const gfx::Size& size,
+    const bool decorated,
     const std::string& icon_path)
 {
   ExoBrowser* browser = new ExoBrowser(wrapper);
-  browser->PlatformCreateWindow(size.width(), size.height(), icon_path);
+  browser->PlatformCreateWindow(size.width(), size.height(), 
+                                decorated, icon_path);
 
   return browser;
 }

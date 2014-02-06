@@ -68,9 +68,10 @@ var session = function(spec, my) {
   init = function() {
     my.exo_browser = api.exo_browser({
       size: [1200, 768],
+      decorated: false,
       icon_path: path.join(__dirname, '../shell.png')
     });
-    my.exo_browser.maximize();
+    //my.exo_browser.maximize();
     my.exo_browser.focus();
 
     my.exo_browser.set_title('ExoBrowser Shell');

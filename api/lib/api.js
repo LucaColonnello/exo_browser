@@ -1070,7 +1070,7 @@ exports.browser_count = 0;
 // name is specifed a statically incremented counter is used to provide a unique
 // human readable name.
 // ```
-// @spec { size, icon_path, [name] }
+// @spec { size, decorated, icon_path, [name] }
 // ```
 var exo_browser = function(spec, my) {
   var _super = {};
@@ -1082,6 +1082,7 @@ var exo_browser = function(spec, my) {
   my.ready = false;
   my.killed = false;
   my.size = spec.size || [800, 600];
+  my.decorated = (typeof spec.decorated === 'undefined' ? true : spec.decorated);
   my.icon_path = spec.icon_path || '';
   my.name = spec.name || ('br-' + (exports.browser_count++));
 
@@ -1421,6 +1422,7 @@ var exo_browser = function(spec, my) {
   init = function() {
     _exo_browser._createExoBrowser({
       size: my.size,
+      decorated: my.decorated,
       icon_path: my.icon_path
     }, function(b) {
       my.internal = b;

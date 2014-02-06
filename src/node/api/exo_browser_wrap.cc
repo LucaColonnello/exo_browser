@@ -222,11 +222,12 @@ ExoBrowserWrap::CreateExoBrowser(
 
   ExoBrowserWrap* browser_w = ObjectWrap::Unwrap<ExoBrowserWrap>(browser_o);
 
-  /* args[0]: spec = { size, icon_path } */
+  /* args[0]: spec = { size, decorated, icon_path } */
   Local<Object> spec = Local<Object>::Cast(args[0]);
   Local<Array> in = Local<Array>::Cast(spec->Get(String::New("size")));
   gfx::Size size(in->Get(Integer::New(0))->ToNumber()->Value(),
                  in->Get(Integer::New(1))->ToNumber()->Value());
+  bool decorated = spec->Get(String::New("decorated"))->BooleanValue();
   std::string icon_path = std::string(*String::Utf8Value(
         Local<String>::Cast(spec->Get(String::New("icon_path")))));
 
@@ -238,18 +239,19 @@ ExoBrowserWrap::CreateExoBrowser(
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ExoBrowserWrap::CreateTask, browser_w, 
-                 size, icon_path, browser_p, cb_p));
+                 size, decorated, icon_path, browser_p, cb_p));
 }
 
 
 void
 ExoBrowserWrap::CreateTask(
     const gfx::Size& size,
+    const bool decorated,
     const std::string& icon_path,
     Persistent<Object>* browser_p,
     Persistent<Function>* cb_p)
 {
-  browser_ = ExoBrowser::CreateNew(this, size, icon_path);
+  browser_ = ExoBrowser::CreateNew(this, size, decorated, icon_path);
 
   NodeThread::Get()->PostTask(
       FROM_HERE,

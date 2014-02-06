@@ -55,6 +55,7 @@ private:
 
 
   void CreateTask(const gfx::Size& size,
+                  const bool decorated,
                   const std::string& icon_path,
                   v8::Persistent<v8::Object>* browser_p,
                   v8::Persistent<v8::Function>* cb_p);

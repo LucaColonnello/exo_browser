@@ -118,10 +118,12 @@ public:
   // ```
   // @wrapper   {ExoBrowserWrap} the wrapper associated with this ExoBrowser
   // @size      {Size} the initial size of the window
+  // @decorated {boolean} is the window decoracted (native WM)
   // @icon_path {string} icon_path (no effect on OSX)
   // ```
   static ExoBrowser* CreateNew(ExoBrowserWrap* wrapper,
                                const gfx::Size& size,
+                               const bool decorated,
                                const std::string& icon_path);
 
   // ### instances
@@ -364,6 +366,7 @@ private:
   //
   // Creates the ExoBrowser window GUI.
   void PlatformCreateWindow(int width, int height, 
+                            bool decorated,
                             const std::string& icon_path);
 
   // ### PlatformKill
