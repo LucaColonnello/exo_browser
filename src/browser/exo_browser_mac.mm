@@ -68,6 +68,9 @@ using namespace content;
   browser_ = browser;
 }
 
+- (BOOL)canBecomeKeyWindow {
+  return YES;
+}
 @end
 
 
@@ -94,6 +97,7 @@ void
 ExoBrowser::PlatformCreateWindow(
     int width,
     int height,
+    bool decorated,
     const std::string& icon_path)
 {
   /* icon_path is ignore on OSX */
@@ -101,10 +105,18 @@ ExoBrowser::PlatformCreateWindow(
   NSRect initial_window_bounds =
       NSMakeRect(0, 0, width, height);
   NSRect content_rect = initial_window_bounds;
-  NSUInteger style_mask = NSTitledWindowMask |
-                          NSClosableWindowMask |
-                          NSMiniaturizableWindowMask |
-                          NSResizableWindowMask;
+  NSUInteger style_mask;
+  if(decorated) {
+    style_mask = NSTitledWindowMask |
+                 NSClosableWindowMask |
+                 NSMiniaturizableWindowMask |
+                 NSResizableWindowMask;
+  }
+  else {
+    style_mask = NSBorderlessWindowMask |
+                 NSResizableWindowMask;
+  }
+
   ExoBrowserCrWindow* window =
       [[ExoBrowserCrWindow alloc] initWithContentRect:content_rect
                                             styleMask:style_mask
